@@ -1,36 +1,41 @@
 package ru.inovus.number.generator.controller;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.inovus.number.generator.error.NumberNotFoundException;
 import ru.inovus.number.generator.service.NumberService;
 
+/**
+ * REST-сервис для получения случайного и следущего автомобильного номера
+ */
 @RestController
+@RequestMapping("number")
 public class NumberController {
 
-    @Autowired
-    private NumberService service;
+    private final NumberService service;
 
-    @GetMapping("/random")
-    String random() {
-        String randomNumber = service.random();
-        if (StringUtils.isNotBlank(randomNumber)) {
-            return randomNumber;
-        } else {
-            throw new NumberNotFoundException();
-        }
+    public NumberController(NumberService service) {
+        this.service = service;
     }
 
+    /**
+     * Запрашивает случайный автомобильный номер
+     *
+     * @return Автомобильный номер в Формате "А000АА 116 RUS"
+     */
+    @GetMapping("/random")
+    String random() {
+        return service.random().getNumberString();
+    }
+
+    /**
+     * Запрашивает следующий за последним выданным автомобильный номер
+     *
+     * @return Автомобильный номер в Формате "А000АА 116 RUS"
+     */
     @GetMapping("/next")
     String next() {
-        String nextNumber = service.next();
-        if (StringUtils.isNotBlank(nextNumber)) {
-            return nextNumber;
-        } else {
-            throw new NumberNotFoundException();
-        }
+        return service.next().getNumberString();
     }
 
 }

@@ -18,35 +18,45 @@ public class StartApplication {
 
     private static final Logger log = LoggerFactory.getLogger(StartApplication.class);
 
-    // start everything
+    private static final char[] letters = new char[]{'А', 'В', 'Е', 'К', 'М', 'Н', 'О', 'Р', 'С', 'Т', 'У', 'Х'};
+
     public static void main(String[] args) {
         SpringApplication.run(StartApplication.class, args);
     }
 
-    // run this only on profile 'demo', avoid run this in test
-    @Profile("demo")
+    /**
+     * Заполняет БД автомобильными номерами.
+     * <p>
+     * Заполняет БД автомобильными номерами.
+     * Запускается только при запуске с профилем "warmup". Если в таблице уже есть записи, то ничего не делает.
+     *
+     * @param repository интерфес взаимодействия с таблицей автомобильных номеров
+     * @return
+     */
+    @Profile("warmup")
     @Bean
-    CommandLineRunner initDatabase(NumberRepository repository) {
+    protected CommandLineRunner initDatabase(NumberRepository repository) {
         return args -> {
-            if(!repository.findAll().iterator().hasNext()) {
-                char[] letters = new char[]{'А', 'В', 'Е', 'К', 'М', 'Н', 'О', 'Р', 'С', 'Т', 'У', 'Х'};
+            if (!repository.findAll().iterator().hasNext()) {
                 int order = 0;
                 long start = System.currentTimeMillis();
                 log.info("Warmup started");
                 for (int l1 = 0; l1 < 12; l1++) {
                     for (int l2 = 0; l2 < 12; l2++) {
                         for (int l3 = 0; l3 < 12; l3++) {
-                            List<Number> numbers = new ArrayList<>();
+                            List<Number> numbers = new ArrayList<>(1000);
                             for (int n = 0; n < 1000; n++) {
                                 String numbersString = String.format("%03d", n);
-                                numbers.add(new Number((letters[l1] + numbersString + letters[l2] + letters[l3]), "116 RUS", order, false));
+                                StringBuilder number = new StringBuilder()
+                                        .append(letters[l1]).append(numbersString).append(letters[l2]).append(letters[l3]);
+                                numbers.add(new Number(number.toString(), "116 RUS", order, false));
                                 order++;
                             }
                             repository.saveAll(numbers);
                         }
                     }
                 }
-                log.info("Warmup finished in " + (System.currentTimeMillis() - start) / 1000 + " sec");
+                log.info(String.format("Warmup finished in %d sec", (System.currentTimeMillis() - start) / 1000));
             }
         };
     }

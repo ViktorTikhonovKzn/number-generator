@@ -1,34 +1,49 @@
 package ru.inovus.number.generator.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import ru.inovus.number.generator.error.NumbersIsOverException;
 import ru.inovus.number.generator.model.Number;
 import ru.inovus.number.generator.repository.NumberRepository;
 
+/**
+ * Сервис для получения автомобильных номеров
+ */
 @Component
 public class NumberService {
 
-    @Autowired
-    NumberRepository repository;
+    private final NumberRepository repository;
+
+    public NumberService(NumberRepository repository) {
+        this.repository = repository;
+    }
 
     private Number current = null;
 
+    /**
+     * Выдает случайный автомобильный номер. В случае, если намера закончились, выбрасывает NumbersIsOverException
+     *
+     * @return
+     */
     @Transactional
-    public String random() {
+    public Number random() {
         Number random = repository.findRandom();
         if (random != null) {
             current = random;
             repository.issueNumber(random.getId());
-            return random.getNumberString();
+            return random;
         } else {
-            return null;
+            throw new NumbersIsOverException();
         }
     }
 
+    /**
+     * Выдает следующий за последним выданным автомобильный номер.  В случае, если намера закончились, выбрасывает NumbersIsOverException
+     *
+     * @return
+     */
     @Transactional
-    public String next() {
-
+    public Number next() {
         Number next;
         if (current != null) {
             next = repository.findNext(current.getNumOrder());
@@ -38,9 +53,9 @@ public class NumberService {
         if (next != null) {
             current = next;
             repository.issueNumber(next.getId());
-            return next.getNumberString();
+            return next;
         } else {
-            return null;
+            throw new NumbersIsOverException();
         }
     }
 }

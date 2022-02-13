@@ -8,11 +8,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Перехватчик внутренних исключений приложения
+ */
 @ControllerAdvice
-public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class NumberGeneratorExceptionHandler extends ResponseEntityExceptionHandler {
 
-    // Let Spring handle the exception, we just override the status code
-    @ExceptionHandler(NumberNotFoundException.class)
+    /**
+     * Перехватывает NumbersIsOverException и возвращает статус 404
+     *
+     * @param response
+     * @throws IOException
+     */
+    @ExceptionHandler(NumbersIsOverException.class)
     public void springHandleNotFound(HttpServletResponse response) throws IOException {
         response.sendError(HttpStatus.NOT_FOUND.value());
     }
