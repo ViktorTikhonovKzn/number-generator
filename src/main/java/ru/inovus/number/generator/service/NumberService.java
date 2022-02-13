@@ -26,7 +26,7 @@ public class NumberService {
      * @return
      */
     @Transactional
-    public Number random() {
+    synchronized public Number random() {
         Number random = repository.findRandom();
         if (random != null) {
             current = random;
@@ -43,7 +43,7 @@ public class NumberService {
      * @return
      */
     @Transactional
-    public Number next() {
+    synchronized public Number next() {
         Number next;
         if (current != null) {
             next = repository.findNext(current.getNumOrder());

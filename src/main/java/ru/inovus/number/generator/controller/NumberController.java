@@ -23,7 +23,7 @@ public class NumberController {
      *
      * @return Автомобильный номер в Формате "А000АА 116 RUS"
      */
-    @GetMapping("/random")
+    @GetMapping("random")
     String random() {
         return service.random().getNumberString();
     }
@@ -33,7 +33,7 @@ public class NumberController {
      *
      * @return Автомобильный номер в Формате "А000АА 116 RUS"
      */
-    @GetMapping("/next")
+    @GetMapping("next")
     String next() {
         return service.next().getNumberString();
     }
